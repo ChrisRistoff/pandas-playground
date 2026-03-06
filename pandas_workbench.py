@@ -116,129 +116,208 @@ SNIPPETS: list[tuple[str, str, str]] = [
     # ── Combining files ───────────────────────────────────────────────────
     (
         "Merge on key column",
-        "JOIN two files on a shared ID column — like a SQL LEFT JOIN.\n"
-        "Change 'id' to your shared column name.\n"
-        "how= options: left, right, inner, outer",
+        "Imagine two spreadsheets that share a common column — like a customer ID.\n"
+        "This sticks them side-by-side, matching rows by that shared column.\n\n"
+        "→ Change 'id' to whatever your shared column is called.\n"
+        "→ df1 is your main file, df2 is the file you're pulling extra info from.\n"
+        "→ Rows in df1 with no match in df2 are still kept (blank for the missing columns).",
+        "# Change 'id' to the column name that both files share\n"
+        "# Example: if both files have an 'order_id' column, write on='order_id'\n"
         "result = pd.merge(df1, df2, on='id', how='left')\n"
     ),
     (
         "Merge on different column names",
-        "JOIN when the key column has different names in each file.\n"
-        "e.g. file1 has 'user_id', file2 has 'id'.",
+        "Same idea as a regular merge, but the shared column has a different name in each file.\n"
+        "For example, one file calls it 'user_id' and the other just calls it 'id'.\n\n"
+        "→ left_on is the column name in your first file.\n"
+        "→ right_on is the column name in your second file.",
+        "# left_on  = the column name in df1 (your first file)\n"
+        "# right_on = the column name in df2 (your second file)\n"
+        "# Change these to match your actual column names\n"
         "result = pd.merge(df1, df2, left_on='user_id', right_on='id', how='left')\n"
     ),
     (
         "Stack rows (concat)",
-        "Append rows from multiple files into one table.\n"
-        "Files should have the same columns.\n"
-        "ignore_index=True resets the row numbers.",
+        "Takes two files and stacks all their rows into one big file, one on top of the other.\n"
+        "Think of it like copy-pasting the rows from one spreadsheet below the other.\n\n"
+        "→ Both files should have the same column names for this to make sense.\n"
+        "→ The row numbers will be reset automatically.",
+        "# Stacks df1 and df2 on top of each other into one file\n"
+        "# Both files should have the same columns\n"
         "result = pd.concat([df1, df2], ignore_index=True)\n"
     ),
     (
         "Stack many files",
-        "Combine more than 2 files vertically.\n"
-        "Add as many DataFrames to the list as needed.",
+        "Same as stacking two files, but you can add as many as you like.\n"
+        "Useful if you have monthly exports that all need to be combined into one.\n\n"
+        "→ Just add more file names inside the square brackets, separated by commas.",
+        "# Add as many files as you need inside the brackets\n"
+        "# Example: [january, february, march] if those are your file names\n"
         "result = pd.concat([df1, df2, df3], ignore_index=True)\n"
     ),
 
     # ── Filtering rows ────────────────────────────────────────────────────
     (
         "Filter: exact match",
-        "Keep only rows where a column equals a specific value.\n"
-        "Change 'column' and 'value' to match your data.",
+        "Keeps only the rows where a column contains a specific value — like filtering in Excel.\n"
+        "Everything else is removed from the result.\n\n"
+        "→ Replace 'column' with the name of the column you want to filter.\n"
+        "→ Replace 'value' with the exact text or number you're looking for.",
+        "# Replace 'column' with your column name, e.g. 'status' or 'country'\n"
+        "# Replace 'value' with what you want to keep, e.g. 'active' or 'UK'\n"
         "result = df1[df1['column'] == 'value']\n"
     ),
     (
         "Filter: contains text",
-        "Keep rows where a column contains a substring.\n"
-        "na=False safely ignores blank cells.\n"
-        "case=False makes it case-insensitive.",
+        "Keeps rows where a column contains a word or phrase anywhere inside it.\n"
+        "Like using Ctrl+F search but as a filter on your data.\n\n"
+        "→ Replace 'column' with the column to search in.\n"
+        "→ Replace 'text' with the word or phrase to search for.\n"
+        "→ It ignores uppercase/lowercase differences automatically.",
+        "# Replace 'column' with the column to search in, e.g. 'description'\n"
+        "# Replace 'text' with what you're searching for, e.g. 'refund'\n"
         "result = df1[df1['column'].str.contains('text', na=False, case=False)]\n"
     ),
     (
         "Filter: number range",
-        "Keep rows where a numeric column is within a range.",
+        "Keeps only rows where a number falls between two values.\n"
+        "For example, keep all orders between £100 and £500.\n\n"
+        "→ Replace 'amount' with your numeric column name.\n"
+        "→ Change 100 and 500 to your minimum and maximum values.",
+        "# Replace 'amount' with your numeric column, e.g. 'price' or 'age'\n"
+        "# Change 100 and 500 to your min and max values\n"
         "result = df1[(df1['amount'] >= 100) & (df1['amount'] <= 500)]\n"
     ),
     (
         "Filter: multiple values (isin)",
-        "Keep rows where a column matches any value in a list.\n"
-        "Like SQL: WHERE status IN ('active', 'pending')",
+        "Keeps rows that match any one of several values — like ticking multiple boxes in a filter.\n"
+        "Much easier than writing separate filters for each value.\n\n"
+        "→ Replace 'status' with your column name.\n"
+        "→ Replace the values in the list with the ones you want to keep.",
+        "# Replace 'status' with your column name\n"
+        "# List all the values you want to keep inside the square brackets\n"
         "result = df1[df1['status'].isin(['active', 'pending'])]\n"
     ),
     (
         "Filter: exclude values",
-        "Exclude rows that match a value — opposite of isin.\n"
-        "The ~ means NOT.",
+        "The opposite of the one above — removes rows that match certain values and keeps everything else.\n"
+        "Useful for getting rid of rows you don't want, like deleted or test records.\n\n"
+        "→ Replace 'status' with your column name.\n"
+        "→ List the values you want to throw away.",
+        "# Replace 'status' with your column name\n"
+        "# List the values you want to REMOVE inside the brackets\n"
         "result = df1[~df1['status'].isin(['deleted', 'archived'])]\n"
     ),
     (
         "Filter: non-empty rows",
-        "Drop rows where a specific column is blank or null.",
+        "Removes any row where a particular column has been left blank.\n"
+        "Great for cleaning up exports that have missing entries.\n\n"
+        "→ Replace 'column' with the column you want to check for blanks.",
+        "# Replace 'column' with the column you want to check, e.g. 'email'\n"
+        "# Rows where that column is blank will be removed\n"
         "result = df1[df1['column'].notna() & (df1['column'] != '')]\n"
     ),
     (
         "Filter: top N rows",
-        "Keep only the first N rows (useful for previewing large files).",
+        "Keeps only the first N rows of your file.\n"
+        "Handy when your file is huge and you just want a quick look at the top.\n\n"
+        "→ Change 100 to however many rows you want.",
+        "# Change 100 to however many rows you want to keep\n"
         "result = df1.head(100)\n"
     ),
     (
         "Filter: random sample",
-        "Take a random sample of N rows.\n"
-        "Useful for testing on a subset of large data.",
+        "Picks a random selection of rows from your file.\n"
+        "Useful for spot-checking a large dataset without looking at all of it.\n\n"
+        "→ Change 100 to how many random rows you want.\n"
+        "→ The random_state=42 just makes sure you get the same random rows each time you run it.",
+        "# Change 100 to how many random rows you want\n"
+        "# random_state=42 means you'll get the same sample each time — remove it for a different sample each run\n"
         "result = df1.sample(n=100, random_state=42)\n"
     ),
 
     # ── Cleaning data ─────────────────────────────────────────────────────
     (
         "Drop duplicate rows",
-        "Remove completely identical rows.\n"
-        "To deduplicate on specific columns, use subset=['col1','col2'].",
+        "Finds and removes rows that are completely identical — keeping only one copy of each.\n"
+        "If two rows have the exact same data in every column, one of them gets removed.\n\n"
+        "→ If you only want to check for duplicates in one column (like email), use the second line.",
+        "# Removes rows that are 100% identical across all columns\n"
         "result = df1.drop_duplicates()\n"
-        "# result = df1.drop_duplicates(subset=['email'])  # dedupe by email\n"
+        "\n"
+        "# To remove duplicates based on just one column (keeps the first occurrence):\n"
+        "# result = df1.drop_duplicates(subset=['email'])\n"
     ),
     (
         "Fill missing values",
-        "Replace blank/NaN cells with a default.\n"
-        "You can specify a different default per column.",
+        "Finds empty/blank cells and fills them in with something you choose.\n"
+        "You can set a different fill value for different columns.\n\n"
+        "→ Replace 'column' with your column name.\n"
+        "→ Replace 'unknown' or 0 with whatever you want the blank cells to say.",
+        "# Replace 'column' with your column name\n"
+        "# Replace 'unknown' with the text to use for blank text cells\n"
+        "# Replace 0 with the number to use for blank number cells\n"
         "result = df1.fillna({'column': 'unknown', 'amount': 0})\n"
     ),
     (
         "Drop rows with any blanks",
-        "Remove any row that has at least one empty cell.",
+        "Removes every row that has at least one empty cell anywhere in it.\n"
+        "After this, every remaining row will be fully filled in.\n\n"
+        "→ Warning: this can remove a lot of rows if your data has many blanks.",
+        "# Removes any row that has even one empty cell\n"
         "result = df1.dropna()\n"
     ),
     (
         "Drop rows where column is blank",
-        "Remove rows only when a specific column is empty.",
+        "Like the one above, but only removes rows where one specific column is empty.\n"
+        "Other columns can still have blanks — only the column you name matters.\n\n"
+        "→ Replace 'column' with the column that must not be blank.",
+        "# Replace 'column' with the column that must have a value\n"
+        "# e.g. 'email' — removes any row where email is missing\n"
         "result = df1.dropna(subset=['column'])\n"
     ),
     (
         "Strip whitespace from all text",
-        "Trim leading/trailing spaces from every string cell.\n"
-        "Useful when CSVs were exported from spreadsheets.",
+        "Removes invisible spaces from the start and end of text in every cell.\n"
+        "These hidden spaces are a common cause of 'Why won't these rows match?!' problems.\n\n"
+        "→ No changes needed — this works on the whole file automatically.",
+        "# Removes leading/trailing spaces from every text cell in the file\n"
+        "# This fixes a very common invisible data quality problem\n"
         "result = df1.apply(lambda col: col.str.strip() if col.dtype == 'object' else col)\n"
     ),
     (
         "Standardise text case",
-        "Convert a text column to lowercase (or upper/title).",
+        "Makes all the text in a column the same case — all lowercase, all UPPERCASE, or Title Case.\n"
+        "Useful when your data has mixed capitalisation like 'london', 'London', 'LONDON'.\n\n"
+        "→ Replace 'column' with your column name.\n"
+        "→ Choose .str.lower(), .str.upper(), or .str.title() depending on what you want.",
+        "# Replace 'column' with the column you want to change\n"
         "result = df1.copy()\n"
-        "result['column'] = result['column'].str.lower()\n"
-        "# .str.upper()  or  .str.title()  also available\n"
+        "result['column'] = result['column'].str.lower()   # all lowercase\n"
+        "# result['column'] = result['column'].str.upper()  # ALL UPPERCASE\n"
+        "# result['column'] = result['column'].str.title()  # Title Case\n"
     ),
     (
         "Fix column data types",
-        "Convert columns to the correct type after loading.\n"
-        "Useful when numbers or dates were loaded as text.\n"
-        "errors='coerce' turns unparseable values into NaN.",
+        "Sometimes when a CSV loads, numbers come in as text and dates come in as plain text.\n"
+        "This fixes them so the computer understands what type of data they are.\n\n"
+        "→ Replace 'amount' with your number column name.\n"
+        "→ Replace 'date' with your date column name.\n"
+        "→ Any values that can't be converted will be left blank rather than causing an error.",
+        "# Replace 'amount' with the column that should be a number\n"
+        "# Replace 'date' with the column that should be a date\n"
         "result = df1.copy()\n"
         "result['amount'] = pd.to_numeric(result['amount'], errors='coerce')\n"
         "result['date']   = pd.to_datetime(result['date'],  errors='coerce')\n"
     ),
     (
         "Replace values in column",
-        "Swap specific values in a column — like find-and-replace.\n"
-        "Add as many old→new pairs as needed.",
+        "Swaps specific values in a column with new ones — like a find-and-replace in Word.\n"
+        "You can do as many swaps as you like in one go.\n\n"
+        "→ Replace 'column' with your column name.\n"
+        "→ Add as many 'old value': 'new value' pairs as you need.",
+        "# Replace 'column' with your column name\n"
+        "# Add as many swaps as you need: 'what it says now': 'what you want it to say'\n"
         "result = df1.copy()\n"
         "result['column'] = result['column'].replace({\n"
         "    'old_value': 'new_value',\n"
@@ -248,8 +327,11 @@ SNIPPETS: list[tuple[str, str, str]] = [
     ),
     (
         "Remove special characters",
-        "Strip non-alphanumeric characters from a text column.\n"
-        "Useful for cleaning phone numbers, codes etc.",
+        "Strips out punctuation and symbols from a text column, leaving only letters, numbers and spaces.\n"
+        "Really useful for cleaning up phone numbers, product codes, or messy exported data.\n\n"
+        "→ Replace 'column' with the column you want to clean.",
+        "# Replace 'column' with the column you want to clean\n"
+        "# This removes anything that isn't a letter, number, or space\n"
         "result = df1.copy()\n"
         "result['column'] = result['column'].str.replace(r'[^\\w\\s]', '', regex=True)\n"
     ),
@@ -257,18 +339,29 @@ SNIPPETS: list[tuple[str, str, str]] = [
     # ── Reshaping columns ─────────────────────────────────────────────────
     (
         "Select columns",
-        "Keep only the columns you want in the output.\n"
-        "Any column not listed is dropped.",
+        "Keeps only the columns you name and throws away the rest.\n"
+        "Great for trimming down a file with dozens of columns to just the ones you care about.\n\n"
+        "→ Replace col1, col2, col3 with your actual column names.\n"
+        "→ Add or remove column names from the list as needed.",
+        "# List the columns you want to keep — everything else will be removed\n"
+        "# Replace col1, col2, col3 with your actual column names\n"
         "result = df1[['col1', 'col2', 'col3']]\n"
     ),
     (
         "Drop columns",
-        "Remove specific columns you don't need.",
+        "Removes specific columns you don't want, keeping everything else.\n"
+        "The opposite of selecting — useful when there are only one or two columns to get rid of.\n\n"
+        "→ Replace the column names with the ones you want to delete.",
+        "# List the columns you want to DELETE — everything else is kept\n"
         "result = df1.drop(columns=['unwanted_col1', 'unwanted_col2'])\n"
     ),
     (
         "Rename columns",
-        "Give columns new names. Add as many pairs as needed.",
+        "Gives your columns new names — like double-clicking a column header in Excel to rename it.\n\n"
+        "→ On the left of the colon: the current column name.\n"
+        "→ On the right of the colon: what you want to rename it to.\n"
+        "→ Add as many pairs as you need.",
+        "# Left side: the current column name  |  Right side: the new name you want\n"
         "result = df1.rename(columns={\n"
         "    'old_name_1': 'new_name_1',\n"
         "    'old_name_2': 'new_name_2',\n"
@@ -276,30 +369,49 @@ SNIPPETS: list[tuple[str, str, str]] = [
     ),
     (
         "Reorder columns",
-        "Set a specific column order in the output.\n"
-        "Any columns not listed are dropped.",
+        "Changes the order that columns appear in — left to right.\n"
+        "Any columns you don't include will be dropped.\n\n"
+        "→ List your column names in the order you want them to appear.",
+        "# List column names in the order you want them to appear left to right\n"
+        "# Any column not mentioned here will be removed from the result\n"
         "result = df1[['col_a', 'col_b', 'col_c']]\n"
     ),
     (
         "Add calculated column",
-        "Create a new column derived from existing ones.\n"
-        "Supports math, string joins, conditionals etc.",
+        "Creates a brand new column by doing a calculation using other columns.\n"
+        "Like adding a formula column in Excel.\n\n"
+        "→ Change 'full_name', 'first_name', 'last_name' to your actual column names.\n"
+        "→ You can combine text with + ' ' + or do maths like * and +.",
+        "# Creates a new column called 'full_name' by joining two text columns\n"
+        "# Creates a new column called 'total' by multiplying qty by unit_price\n"
+        "# Change the column names and formula to suit your data\n"
         "result = df1.copy()\n"
         "result['full_name'] = result['first_name'] + ' ' + result['last_name']\n"
         "result['total']     = result['qty'] * result['unit_price']\n"
     ),
     (
         "Conditional column (if/else)",
-        "Set a column value based on a condition.\n"
-        "Like Excel IF() — needs numpy (usually installed with pandas).",
+        "Adds a new column whose value depends on a condition — just like =IF() in Excel.\n"
+        "If the condition is true, it gets one value. If not, it gets another.\n\n"
+        "→ Replace 'score' with your column name.\n"
+        "→ Change >= 50 to your condition.\n"
+        "→ Change 'pass' and 'fail' to whatever labels you want.",
+        "# Adds a new column 'label' based on whether a condition is true or false\n"
+        "# Change 'score' to your column, >= 50 to your condition, and 'pass'/'fail' to your labels\n"
         "import numpy as np\n"
         "result = df1.copy()\n"
         "result['label'] = np.where(result['score'] >= 50, 'pass', 'fail')\n"
     ),
     (
         "Multiple conditions (nested if)",
-        "Assign different labels based on multiple conditions.\n"
-        "Like nested IF() in Excel.",
+        "Like the conditional column above, but with more than two outcomes.\n"
+        "Like a nested =IF(IF(IF())) in Excel, but much easier to read.\n\n"
+        "→ Add or remove conditions in the condlist.\n"
+        "→ Each condition matches up with a label in choicelist (top to bottom).\n"
+        "→ 'default' is what gets used if none of the conditions match.",
+        "# Each condition in condlist matches the label at the same position in choicelist\n"
+        "# The first condition that is true wins — order matters!\n"
+        "# Change 'score', the numbers, and the labels to suit your data\n"
         "import numpy as np\n"
         "result = df1.copy()\n"
         "result['grade'] = np.select(\n"
@@ -309,20 +421,31 @@ SNIPPETS: list[tuple[str, str, str]] = [
         "        result['score'] >= 50,\n"
         "    ],\n"
         "    choicelist=['A', 'B', 'C'],\n"
-        "    default='F'\n"
+        "    default='F'   # used when none of the conditions above are true\n"
         ")\n"
     ),
     (
         "Split column by delimiter",
-        "Split one column into two or more.\n"
-        "e.g. 'John Smith' → first and last name columns.",
+        "Splits one column into two separate columns at a dividing character.\n"
+        "For example, splitting 'John Smith' into a 'first' and 'last' column.\n\n"
+        "→ Replace 'full_name' with the column you want to split.\n"
+        "→ Change ' ' to whatever character separates the two parts (a space, comma, dash, etc.).\n"
+        "→ Replace 'first' and 'last' with your new column names.",
+        "# Replace 'full_name' with the column to split\n"
+        "# Change ' ' to the character that divides the two parts — e.g. ',' or '-'\n"
+        "# Replace 'first' and 'last' with what you want the two new columns to be called\n"
         "result = df1.copy()\n"
         "result[['first', 'last']] = result['full_name'].str.split(' ', n=1, expand=True)\n"
     ),
     (
         "Extract substring / regex",
-        "Pull a part of a string using a pattern.\n"
-        "e.g. extract a year from a mixed text column.",
+        "Pulls out a specific piece of text from inside a column using a pattern.\n"
+        "For example, extracting a 4-digit year from a column that contains mixed text like 'Report 2024 Final'.\n\n"
+        "→ Replace 'description' with your column name.\n"
+        "→ The pattern \\d{4} means 'find 4 digits in a row' — change it for other patterns.",
+        "# Pulls out the first 4-digit number found in each cell\n"
+        "# Replace 'description' with your column name\n"
+        "# The pattern r'(\\d{4})' finds 4 digits — change it if you need a different pattern\n"
         "result = df1.copy()\n"
         "result['year'] = result['description'].str.extract(r'(\\d{4})')\n"
     ),
@@ -330,28 +453,47 @@ SNIPPETS: list[tuple[str, str, str]] = [
     # ── Sorting & ranking ─────────────────────────────────────────────────
     (
         "Sort by column",
-        "Sort rows by one column, ascending or descending.",
+        "Sorts all the rows by a column — either smallest to largest, or largest to smallest.\n"
+        "Like clicking a column header to sort in Excel.\n\n"
+        "→ Replace 'column' with the column you want to sort by.\n"
+        "→ ascending=True = A to Z or lowest to highest.\n"
+        "→ ascending=False = Z to A or highest to lowest.",
+        "# Replace 'column' with the column to sort by\n"
+        "# ascending=True = A→Z or lowest first  |  ascending=False = Z→A or highest first\n"
         "result = df1.sort_values('column', ascending=True)\n"
-        "# ascending=False  →  largest/latest first\n"
     ),
     (
         "Sort by multiple columns",
-        "Sort by a primary column, then a secondary one.\n"
-        "Each can have its own direction.",
+        "Sorts by a first column, then uses a second column to break any ties.\n"
+        "For example: sort by department (A-Z), then by salary (highest first).\n\n"
+        "→ Replace 'dept' and 'salary' with your column names.\n"
+        "→ Set True or False for each column's sort direction.",
+        "# First sorts by 'dept' A→Z, then within each dept sorts by 'salary' highest first\n"
+        "# Replace column names and True/False to match what you need\n"
         "result = df1.sort_values(['dept', 'salary'], ascending=[True, False])\n"
     ),
     (
         "Add rank column",
-        "Add a numeric rank column based on a score.\n"
-        "method='dense' means no gaps in rank numbers.",
+        "Adds a numbered rank column — 1st, 2nd, 3rd etc. — based on a score.\n"
+        "The highest score gets rank 1 by default.\n\n"
+        "→ Replace 'score' with the column you want to rank by.\n"
+        "→ The result will be sorted so rank 1 appears at the top.",
+        "# Replace 'score' with the column to rank by — highest value gets rank 1\n"
+        "# The result is sorted so rank 1 appears at the top\n"
         "result = df1.copy()\n"
         "result['rank'] = result['score'].rank(ascending=False, method='dense').astype(int)\n"
         "result = result.sort_values('rank')\n"
     ),
     (
         "Top N per group",
-        "Keep the top N rows within each group.\n"
-        "e.g. top 3 sales per region.",
+        "Finds the top N rows within each group — not just the overall top.\n"
+        "For example: the top 3 sales in each region, or the top 5 products per category.\n\n"
+        "→ Replace 'amount' with the column to rank by.\n"
+        "→ Replace 'category' with the column that defines the groups.\n"
+        "→ Change .head(3) to however many top results you want per group.",
+        "# Replace 'amount' with the column to find the top values in\n"
+        "# Replace 'category' with the column that defines your groups (e.g. 'region', 'department')\n"
+        "# Change head(3) to the number of top results you want per group\n"
         "result = (\n"
         "    df1.sort_values('amount', ascending=False)\n"
         "       .groupby('category')\n"
@@ -363,13 +505,24 @@ SNIPPETS: list[tuple[str, str, str]] = [
     # ── Aggregation & summarising ─────────────────────────────────────────
     (
         "Group & sum",
-        "Group rows by a category and sum a numeric column.\n"
-        "Like a pivot table in Excel.",
+        "Groups your rows by a category and adds up a number for each group.\n"
+        "Like a pivot table in Excel — great for totals by region, department, product, etc.\n\n"
+        "→ Replace 'category' with the column you want to group by.\n"
+        "→ Replace 'amount' with the column you want to add up.",
+        "# Replace 'category' with what you want to group by (e.g. 'region', 'product')\n"
+        "# Replace 'amount' with the number column you want totalled\n"
         "result = df1.groupby('category').agg({'amount': 'sum'}).reset_index()\n"
     ),
     (
         "Group & multiple aggregations",
-        "Compute count, sum, mean etc. for different columns at once.",
+        "Groups your rows and calculates several things at once — total, count, average, max.\n"
+        "All in one go instead of running separate calculations.\n\n"
+        "→ Replace 'category' with your grouping column.\n"
+        "→ Replace 'amount' with the number column you're summarising.\n"
+        "→ You can rename total, count, average, maximum to whatever you like.",
+        "# Replace 'category' with the column to group by\n"
+        "# Replace 'amount' with the number column to summarise\n"
+        "# The names on the left (total, count, etc.) become your new column names\n"
         "result = df1.groupby('category').agg(\n"
         "    total   = ('amount', 'sum'),\n"
         "    count   = ('amount', 'count'),\n"
@@ -379,65 +532,103 @@ SNIPPETS: list[tuple[str, str, str]] = [
     ),
     (
         "Value counts",
-        "Count how many times each value appears in a column.\n"
-        "Great for checking data quality or distributions.",
+        "Counts how many times each unique value appears in a column.\n"
+        "Great for answering 'how many orders per country?' or 'how many customers per status?'\n\n"
+        "→ Replace 'column' with the column you want to count.",
+        "# Replace 'column' with the column you want to count values in\n"
+        "# The result will have two columns: the value, and how many times it appears\n"
         "result = df1['column'].value_counts().reset_index()\n"
         "result.columns = ['value', 'count']\n"
     ),
     (
         "Pivot table",
-        "Reshape data: rows become one axis, columns another.\n"
-        "aggfunc can be sum, mean, count, max, min.",
+        "Reorganises your data so one column becomes the row labels and another becomes the column headers.\n"
+        "Exactly like creating a pivot table in Excel.\n\n"
+        "→ Replace 'row_col' with what you want as row labels (left side).\n"
+        "→ Replace 'col_col' with what you want spread across the top as column headers.\n"
+        "→ Replace 'value_col' with the numbers to fill the table with.",
+        "# row_col   = what appears as rows (left side of the table)\n"
+        "# col_col   = what spreads across the top as column headers\n"
+        "# value_col = the numbers that fill the table\n"
+        "# aggfunc   = what to do with the numbers: 'sum', 'mean', 'count', 'max', 'min'\n"
         "result = df1.pivot_table(\n"
         "    index='row_col',\n"
         "    columns='col_col',\n"
         "    values='value_col',\n"
         "    aggfunc='sum',\n"
-        "    fill_value=0,\n"
+        "    fill_value=0,   # use 0 instead of blank for missing combinations\n"
         ").reset_index()\n"
     ),
     (
         "Unpivot / melt (wide → long)",
-        "Reverse a pivot: turn column headers into row values.\n"
-        "Useful when months or dates are spread across columns.",
+        "The reverse of a pivot table — turns column headers into rows.\n"
+        "Useful when your data has months or dates spread across many columns and you want them in one column instead.\n\n"
+        "→ Replace 'id' and 'name' with the columns that should stay as they are.\n"
+        "→ 'month' will become the name of the new column holding the old header names.\n"
+        "→ 'amount' will become the name of the new column holding the values.",
+        "# id_vars  = columns that should stay as they are (not unpivoted)\n"
+        "# var_name = what to call the new column that holds the old header names\n"
+        "# value_name = what to call the new column that holds the values\n"
         "result = df1.melt(\n"
-        "    id_vars=['id', 'name'],   # columns to keep as-is\n"
-        "    var_name='month',         # new column for old headers\n"
-        "    value_name='amount',      # new column for values\n"
+        "    id_vars=['id', 'name'],\n"
+        "    var_name='month',\n"
+        "    value_name='amount',\n"
         ")\n"
     ),
     (
         "Running total (cumulative sum)",
-        "Add a column showing the cumulative sum over rows.\n"
-        "Sort by date first for a meaningful running total.",
+        "Adds a column that shows a running total — each row shows the total so far up to that point.\n"
+        "Like a bank statement balance that grows with each transaction.\n\n"
+        "→ Replace 'date' with your date column so rows are in the right order first.\n"
+        "→ Replace 'amount' with the number column you want to accumulate.",
+        "# Sorts by date first so the running total goes in the right order\n"
+        "# Replace 'date' with your date column and 'amount' with the number to accumulate\n"
         "result = df1.sort_values('date').copy()\n"
         "result['running_total'] = result['amount'].cumsum()\n"
     ),
     (
         "Percentage of total",
-        "Add a column showing each row's % share of the total.",
+        "Adds a column showing what percentage of the grand total each row represents.\n"
+        "For example, each product's share of total sales.\n\n"
+        "→ Replace 'amount' with the number column you want to calculate percentages from.",
+        "# Replace 'amount' with your number column\n"
+        "# Each row will show its value as a % of the overall total\n"
         "result = df1.copy()\n"
         "result['pct'] = (result['amount'] / result['amount'].sum() * 100).round(2)\n"
     ),
     (
         "Percentage within group",
-        "Each row's share of its group total (not overall total).",
+        "Like percentage of total, but calculated within each group separately.\n"
+        "For example, each product's share of sales within its own category — not the whole dataset.\n\n"
+        "→ Replace 'category' with your grouping column.\n"
+        "→ Replace 'amount' with your number column.",
+        "# Replace 'category' with the column that defines your groups\n"
+        "# Replace 'amount' with your number column\n"
+        "# Each row will show its value as a % of its group's total\n"
         "result = df1.copy()\n"
         "result['group_total'] = result.groupby('category')['amount'].transform('sum')\n"
         "result['pct_of_group'] = (result['amount'] / result['group_total'] * 100).round(2)\n"
     ),
     (
         "Cross-tabulation",
-        "Count combinations of two categorical columns.\n"
-        "Like a frequency matrix.",
+        "Counts how many times each combination of two columns appears.\n"
+        "Like asking 'how many customers in each country have each status?'\n\n"
+        "→ Replace 'col_a' with your first category column (becomes the rows).\n"
+        "→ Replace 'col_b' with your second category column (becomes the column headers).",
+        "# Replace 'col_a' with the column for rows, 'col_b' with the column for headers\n"
+        "# The numbers in the table show how many rows match each combination\n"
         "result = pd.crosstab(df1['col_a'], df1['col_b']).reset_index()\n"
     ),
 
     # ── Date & time ───────────────────────────────────────────────────────
     (
         "Parse dates & extract parts",
-        "Convert a text date column and extract year/month/day.\n"
-        "errors='coerce' turns unparseable dates into NaN.",
+        "Converts a column of date text into real dates, then pulls out the year, month, and day as separate columns.\n"
+        "Useful when your CSV has dates stored as plain text like '2024-03-15'.\n\n"
+        "→ Replace 'date_col' with your date column name.\n"
+        "→ Any dates that can't be read will be left blank rather than causing an error.",
+        "# Replace 'date_col' with the name of your date column\n"
+        "# This creates separate year, month, and day columns from your date\n"
         "result = df1.copy()\n"
         "result['date']  = pd.to_datetime(result['date_col'], errors='coerce')\n"
         "result['year']  = result['date'].dt.year\n"
@@ -446,7 +637,12 @@ SNIPPETS: list[tuple[str, str, str]] = [
     ),
     (
         "Filter by date range",
-        "Keep only rows within a specific date range.",
+        "Keeps only rows that fall within a specific date range.\n"
+        "Like filtering a spreadsheet to show only this year's data.\n\n"
+        "→ Replace 'date_col' with your date column name.\n"
+        "→ Change '2024-01-01' and '2024-12-31' to your start and end dates.",
+        "# Replace 'date_col' with your date column name\n"
+        "# Change the start and end dates to your desired range (format: YYYY-MM-DD)\n"
         "result = df1.copy()\n"
         "result['date'] = pd.to_datetime(result['date_col'], errors='coerce')\n"
         "result = result[\n"
@@ -456,7 +652,11 @@ SNIPPETS: list[tuple[str, str, str]] = [
     ),
     (
         "Days between two dates",
-        "Calculate the number of days between two date columns.",
+        "Calculates the number of days between two date columns and puts it in a new column.\n"
+        "For example, the number of days between an order date and a delivery date.\n\n"
+        "→ Replace 'start_date' and 'end_date' with your two date column names.",
+        "# Replace 'start_date' and 'end_date' with your two date column names\n"
+        "# A new column 'days_diff' will show the number of days between them\n"
         "result = df1.copy()\n"
         "result['start']     = pd.to_datetime(result['start_date'])\n"
         "result['end']       = pd.to_datetime(result['end_date'])\n"
@@ -464,8 +664,13 @@ SNIPPETS: list[tuple[str, str, str]] = [
     ),
     (
         "Group by month/year",
-        "Aggregate data by month and year.\n"
-        "Useful for monthly trend reports.",
+        "Groups your data by month and year and totals a number column for each month.\n"
+        "Perfect for creating a monthly summary report from detailed transaction data.\n\n"
+        "→ Replace 'date_col' with your date column.\n"
+        "→ Replace 'amount' with the number column to total each month.",
+        "# Replace 'date_col' with your date column name\n"
+        "# Replace 'amount' with the number column to sum up each month\n"
+        "# The result will have one row per month with the total for that month\n"
         "result = df1.copy()\n"
         "result['date']       = pd.to_datetime(result['date_col'])\n"
         "result['year_month'] = result['date'].dt.to_period('M').astype(str)\n"
@@ -475,41 +680,67 @@ SNIPPETS: list[tuple[str, str, str]] = [
     # ── Lookup & matching ─────────────────────────────────────────────────
     (
         "VLOOKUP (add column from lookup table)",
-        "Like VLOOKUP in Excel — attach extra info from a second file\n"
-        "based on a key column.",
-        "# df2 is the lookup table (e.g. product_id → product_name)\n"
+        "Pulls extra information from a second file and adds it to your first file — exactly like VLOOKUP in Excel.\n"
+        "For example, you have a sales file with product IDs, and a second file with product names. This joins them.\n\n"
+        "→ Replace 'id' with the shared column that links the two files.\n"
+        "→ Replace 'label' with the column from df2 that you want to bring across.",
+        "# df2 is your lookup table — the file with the extra info you want to bring in\n"
+        "# Replace 'id' with the column that both files share\n"
+        "# Replace 'label' with the column from df2 you want added to df1\n"
         "result = df1.merge(df2[['id', 'label']], on='id', how='left')\n"
     ),
     (
         "Flag rows present in both files",
-        "Mark which rows in file1 also appear in file2.\n"
-        "Adds a True/False column.",
+        "Adds a True/False column to show which rows in your first file also exist in your second file.\n"
+        "Useful for quickly spotting which records appear in both lists.\n\n"
+        "→ Replace 'id' with the column to compare between the two files.",
+        "# Adds a column 'in_file2' that is True if the row's id also appears in df2\n"
+        "# Replace 'id' with the column to match on\n"
         "result = df1.copy()\n"
         "result['in_file2'] = result['id'].isin(df2['id'])\n"
     ),
     (
         "Anti-join (rows only in file1)",
-        "Find records in file1 with NO match in file2.\n"
-        "Useful for spotting missing or unmatched records.",
+        "Finds rows that exist in your first file but have NO matching row in your second file.\n"
+        "Great for finding missing records — like customers who placed an order but never got an invoice.\n\n"
+        "→ Replace 'id' with the column to match between the two files.",
+        "# Finds rows in df1 that have NO match in df2\n"
+        "# Replace 'id' with the column to match on\n"
         "merged = df1.merge(df2[['id']], on='id', how='left', indicator=True)\n"
         "result = merged[merged['_merge'] == 'left_only'].drop(columns=['_merge'])\n"
     ),
     (
         "Inner join (rows in both files)",
-        "Keep only rows that exist in BOTH files (matched records only).",
+        "Keeps only the rows that have a matching entry in BOTH files — everything else is removed.\n"
+        "If a row only exists in one file, it won't appear in the result.\n\n"
+        "→ Replace 'id' with the shared column between your two files.",
+        "# Keeps only rows that exist in BOTH files\n"
+        "# Rows with no match in the other file are removed entirely\n"
+        "# Replace 'id' with the column both files share\n"
         "result = pd.merge(df1, df2, on='id', how='inner')\n"
     ),
     (
         "Full outer join (all rows)",
-        "Keep ALL rows from both files.\n"
-        "Unmatched cells will be NaN.",
+        "Combines both files and keeps every row from both — even ones with no match.\n"
+        "Where there's no match, the missing columns will just be blank.\n\n"
+        "→ Replace 'id' with the shared column between your two files.",
+        "# Keeps ALL rows from both files\n"
+        "# Where a row has no match in the other file, the missing columns will be blank\n"
+        "# Replace 'id' with the column both files share\n"
         "result = pd.merge(df1, df2, on='id', how='outer')\n"
     ),
     (
         "Fuzzy match (approximate names)",
-        "Find the closest match in file2 for each row in file1.\n"
-        "Useful when names/strings aren't spelled exactly the same.\n"
-        "Requires: pip install thefuzz  or  pacman -S python-thefuzz",
+        "Matches rows between two files even when the text isn't spelled exactly the same.\n"
+        "For example, 'John Smith' and 'Jon Smith' would still be matched.\n\n"
+        "→ You need to install an extra library first: sudo pacman -S python-thefuzz\n"
+        "→ Replace 'name' with the column you want to match on.\n"
+        "→ The threshold=80 means 80% similar — lower it to match more loosely, raise it to be stricter.",
+        "# FIRST: install the fuzzy matching library\n"
+        "# Run this in your terminal: sudo pacman -S python-thefuzz\n"
+        "#\n"
+        "# Replace 'name' with the column you want to match across both files\n"
+        "# threshold=80 means 80% similar — lower = more matches, higher = stricter\n"
         "from thefuzz import process\n\n"
         "def best_match(val, choices, threshold=80):\n"
         "    match, score = process.extractOne(str(val), choices)\n"
@@ -522,39 +753,65 @@ SNIPPETS: list[tuple[str, str, str]] = [
     # ── Output formatting ─────────────────────────────────────────────────
     (
         "Round numeric columns",
-        "Round all float columns to 2 decimal places.\n"
-        "Or target one specific column.",
+        "Rounds all decimal numbers in your file to 2 decimal places.\n"
+        "Tidies up results that end up with many decimal places after calculations.\n\n"
+        "→ Change the 2 to however many decimal places you want.\n"
+        "→ Use the commented-out line instead if you only want to round one specific column.",
+        "# Rounds every number in the file to 2 decimal places\n"
         "result = df1.round(2)\n"
-        "# result['amount'] = result['amount'].round(2)  # single column\n"
+        "\n"
+        "# To round just one column instead, use this:\n"
+        "# result['amount'] = result['amount'].round(2)\n"
     ),
     (
         "Remove suffix columns after merge",
-        "After merging, drop the redundant _x/_y suffix columns.",
+        "After joining two files that share column names, pandas adds _x and _y suffixes to avoid confusion.\n"
+        "This removes the duplicate columns you don't need.\n\n"
+        "→ Replace 'id' with your shared column. This keeps df1's version and drops df2's duplicates.",
+        "# Joins the files but marks duplicate columns from df2 with '_drop'\n"
+        "# Then removes all columns ending in '_drop'\n"
+        "# Replace 'id' with your shared column name\n"
         "result = df1.merge(df2, on='id', how='left', suffixes=('', '_drop'))\n"
         "result = result[[c for c in result.columns if not c.endswith('_drop')]]\n"
     ),
     (
         "Flatten pivot column names",
-        "After pivot_table, column names can become tuples — flatten them.",
+        "After creating a pivot table, the column names sometimes turn into awkward combinations like ('sales', 'sum').\n"
+        "This converts them into simple flat names like 'sales_sum'.\n\n"
+        "→ No changes needed — just run this after your pivot_table step.",
+        "# Run this after creating a pivot table if your column names look like tuples\n"
+        "# It joins them into simple names with an underscore, e.g. ('sales', 'sum') → 'sales_sum'\n"
         "result = df1.pivot_table(index='a', columns='b', values='c', aggfunc='sum')\n"
         "result.columns = ['_'.join(str(s) for s in col).strip() for col in result.columns]\n"
         "result = result.reset_index()\n"
     ),
     (
         "Reindex / ensure all columns exist",
-        "Guarantee a fixed set of columns exist, adding blanks for missing ones.\n"
-        "Useful when stacking files with slightly different schemas.",
+        "Makes sure your output always has a specific set of columns — even if some are missing from the source file.\n"
+        "Any missing columns are added automatically with blank values.\n"
+        "Useful when combining files that don't always have the exact same columns.\n\n"
+        "→ Replace the column names in the list with the ones you always want in your output.",
+        "# List every column you want to guarantee exists in the output\n"
+        "# If a column is missing from the source file, it will be added with blank values\n"
         "expected_cols = ['id', 'name', 'email', 'amount', 'status']\n"
         "result = df1.reindex(columns=expected_cols)\n"
     ),
     (
         "Export multiple sheets to Excel",
-        "Write multiple DataFrames to separate sheets in one Excel file.\n"
-        "Requires: pip install openpyxl  or  pacman -S python-openpyxl",
+        "Saves multiple files as separate sheets inside a single Excel workbook.\n"
+        "Instead of having separate CSV files, everything ends up neatly in one .xlsx file.\n\n"
+        "→ You need to install openpyxl first: sudo pacman -S python-openpyxl\n"
+        "→ Change 'output.xlsx' to whatever you want the file to be called.\n"
+        "→ Change 'Sheet1' and 'Sheet2' to whatever you want the tab names to be.",
+        "# FIRST: install the Excel library\n"
+        "# Run in terminal: sudo pacman -S python-openpyxl\n"
+        "#\n"
+        "# Change 'output.xlsx' to your desired filename\n"
+        "# Change 'Sheet1'/'Sheet2' to whatever you want the tabs to be called\n"
         "with pd.ExcelWriter('output.xlsx', engine='openpyxl') as writer:\n"
         "    df1.to_excel(writer, sheet_name='Sheet1', index=False)\n"
         "    df2.to_excel(writer, sheet_name='Sheet2', index=False)\n"
-        "result = df1  # set result so the preview still works\n"
+        "result = df1  # keeps the preview working in this app\n"
     ),
 ]
 
